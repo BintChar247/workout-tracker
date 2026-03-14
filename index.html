@@ -8,6 +8,7 @@
 <meta name="theme-color" content="#0e0e0e">
 <title>Travel without Weights</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Mono&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 :root {
   --bg: #0e0e0e;
@@ -733,39 +734,39 @@ const SUPA_KEY = 'sb_publishable_g1gPd3wOu72q6_JHs06tsQ_qFwLK_mC';
 
 let currentSession = null;
 let currentUser = null;
-
-// Load Supabase JS SDK
-const supaScript = document.createElement('script');
-supaScript.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
-supaScript.onload = initSupabase;
-document.head.appendChild(supaScript);
-
-let supabase = null;
+let supa = null;
 
 async function initSupabase() {
-  supabase = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+  try {
+    supa = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+    console.log('Supabase client created');
 
-  // Listen for auth state changes
-  supabase.auth.onAuthStateChange(async (event, session) => {
-    currentSession = session;
-    currentUser = session?.user || null;
-    if (currentUser) {
+    supa.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth event:', event, session?.user?.email);
+      currentSession = session;
+      currentUser = session?.user || null;
+      if (currentUser) {
+        showApp();
+        await loadRemoteState();
+      } else {
+        showLogin();
+      }
+    });
+
+    const { data: { session }, error } = await supa.auth.getSession();
+    console.log('Existing session:', session?.user?.email, error);
+    if (session) {
+      currentSession = session;
+      currentUser = session.user;
       showApp();
       await loadRemoteState();
     } else {
       showLogin();
     }
-  });
-
-  // Check existing session
-  const { data: { session } } = await supabase.auth.getSession();
-  if (session) {
-    currentSession = session;
-    currentUser = session.user;
-    showApp();
-    await loadRemoteState();
-  } else {
-    showLogin();
+  } catch(e) {
+    console.error('Supabase init error:', e);
+    document.getElementById('login-screen').style.display = 'flex';
+    document.querySelector('.login-sub').textContent = 'Error: ' + e.message;
   }
 }
 
@@ -774,7 +775,7 @@ async function signInWithGoogle() {
   const btn = document.querySelector('.login-btn');
   btn.innerHTML = 'Redirecting to Google...';
   btn.disabled = true;
-  const { error } = await supabase.auth.signInWithOAuth({
+  const { error } = await supa.auth.signInWithOAuth({
     provider: 'google',
     options: {
       redirectTo: 'https://bintchar247.github.io/workout-tracker/',
@@ -788,7 +789,7 @@ async function signInWithGoogle() {
 }
 
 async function signOut() {
-  await supabase.auth.signOut();
+  await supa.auth.signOut();
   state = {};
   saveLocalState(state);
   showLogin();
@@ -830,7 +831,7 @@ let currentIdx = 0;
 let syncOnline = false;
 
 async function loadRemoteState() {
-  if (!currentUser || !supabase) return;
+  if (!currentUser || !supa) return;
   showSyncBadge('syncing');
   try {
     const { data, error } = await supabase
@@ -851,9 +852,9 @@ async function loadRemoteState() {
 
 async function saveExercise(id, completed) {
   saveLocalState(state);
-  if (!syncOnline || !currentUser || !supabase) return;
+  if (!syncOnline || !currentUser || !supa) return;
   try {
-    await supabase.from('workout_progress').upsert({
+    await supa.from('workout_progress').upsert({
       user_id: currentUser.id,
       exercise_id: id,
       completed
@@ -1062,6 +1063,7 @@ document.addEventListener('touchend',e=>{
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 // Auth is handled by initSupabase() which fires when the SDK loads above
 // goToday() and loadRemoteState() are called from showApp() after login
+window.addEventListener('load', initSupabase);
 </script>
 </body>
 </html>
