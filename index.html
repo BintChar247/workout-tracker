@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#0e0e0e">
-<title>Mas Bimbim — Bodyweight Program</title>
+<title>Travel without Weights</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Mono&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -57,7 +57,7 @@ body{
 
 /* ── SIDEBAR ────────────────────────────────────────────── */
 .logo{padding:0 20px 24px;border-bottom:1px solid var(--border);margin-bottom:16px}
-.logo-text{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;color:var(--accent);line-height:1}
+.logo-text{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;color:var(--accent);line-height:1}
 .logo-sub{font-size:11px;color:var(--text2);letter-spacing:.1em;margin-top:2px}
 .nav-item{
   display:flex;align-items:center;gap:10px;
@@ -91,7 +91,7 @@ body{
   position:sticky;top:0;z-index:100;
 }
 .mobile-topbar-inner{display:flex;align-items:center;justify-content:space-between}
-.mobile-logo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--accent)}
+.mobile-logo{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;color:var(--accent)}
 .mobile-menu-btn{
   background:none;border:1px solid var(--border);
   color:var(--text2);border-radius:8px;
@@ -240,6 +240,60 @@ body{
 .all-done-text{font-size:14px;color:var(--text2);line-height:1.65}
 @keyframes pulse-glow{0%,100%{box-shadow:0 0 20px #d4f34420}50%{box-shadow:0 0 40px #d4f34440}}
 
+/* ── LOGIN SCREEN ───────────────────────────────────────── */
+.login-screen{
+  position:fixed;inset:0;
+  background:var(--bg);
+  display:flex;align-items:center;justify-content:center;
+  z-index:999;padding:24px;
+}
+.login-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:40px 32px;
+  width:100%;max-width:360px;
+  text-align:center;
+}
+.login-logo{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:2px;color:var(--accent);margin-bottom:4px}
+.login-sub{font-size:13px;color:var(--text2);margin-bottom:32px;line-height:1.5}
+.login-btn{
+  width:100%;display:flex;align-items:center;justify-content:center;gap:12px;
+  background:var(--card);border:1px solid var(--border);
+  color:var(--text);border-radius:12px;
+  padding:14px 20px;font-size:15px;font-weight:500;
+  cursor:pointer;font-family:'DM Sans',sans-serif;
+  transition:all .2s;margin-bottom:12px;
+}
+.login-btn:hover{background:#2a2a2a;border-color:var(--muted)}
+.login-btn:active{transform:scale(.98)}
+.google-icon{width:20px;height:20px;flex-shrink:0}
+.login-note{font-size:11px;color:var(--muted);margin-top:20px;line-height:1.6}
+
+/* ── USER BAR ───────────────────────────────────────────── */
+.user-bar{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 20px;
+  border-top:1px solid var(--border);
+  margin-top:8px;
+}
+.user-avatar{
+  width:28px;height:28px;border-radius:50%;
+  background:var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:500;color:var(--text2);
+  overflow:hidden;flex-shrink:0;
+}
+.user-avatar img{width:100%;height:100%;object-fit:cover}
+.user-name{font-size:12px;color:var(--text2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.signout-btn{
+  background:none;border:none;color:var(--muted);
+  font-size:11px;cursor:pointer;padding:4px 6px;
+  font-family:'DM Sans',sans-serif;border-radius:4px;
+  transition:color .15s;
+}
+.signout-btn:hover{color:var(--text)}
+
 /* ── SVG ────────────────────────────────────────────────── */
 svg.ex-svg{width:48px;height:48px}
 
@@ -306,11 +360,27 @@ svg.ex-svg{width:48px;height:48px}
 </head>
 <body>
 
+<!-- LOGIN SCREEN -->
+<div class="login-screen" id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">TRAVEL WITHOUT WEIGHTS</div>
+    <div class="login-sub">Bodyweight Program · Mar 2025<br>Sign in to sync your progress across all devices</div>
+    <button class="login-btn" onclick="signInWithGoogle()">
+      <svg class="google-icon" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Continue with Google
+    </button>
+    <div class="login-note">Your progress saves to your account and syncs across every device. No password needed.</div>
+  </div>
+</div>
+
 <!-- MOBILE TOP BAR -->
 <div class="mobile-topbar">
   <div class="mobile-topbar-inner">
-    <div class="mobile-logo">MAS BIMBIM</div>
-    <button class="mobile-menu-btn" onclick="openDrawer()">&#9776; All Days</button>
+    <div class="mobile-logo">TRAVEL WITHOUT WEIGHTS</div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span id="sync-badge" style="font-size:11px;color:#888">&#8635; syncing</span>
+      <button class="mobile-menu-btn" onclick="openDrawer()">&#9776; All Days</button>
+    </div>
   </div>
 </div>
 
@@ -324,7 +394,7 @@ svg.ex-svg{width:48px;height:48px}
 <div class="drawer" id="drawer">
   <button class="drawer-close" onclick="closeDrawer()">&#10005;</button>
   <div class="logo" style="padding:0 20px 20px;border-bottom:1px solid var(--border);margin-bottom:12px">
-    <div class="logo-text">MAS BIMBIM</div>
+    <div class="logo-text">TRAVEL WITHOUT WEIGHTS</div>
     <div class="logo-sub">Bodyweight Program · Mar 2025</div>
   </div>
   <div id="drawer-nav"></div>
@@ -334,10 +404,16 @@ svg.ex-svg{width:48px;height:48px}
 <div class="app">
   <aside class="sidebar">
     <div class="logo">
-      <div class="logo-text">MAS BIMBIM</div>
+      <div class="logo-text">TRAVEL WITHOUT WEIGHTS</div>
       <div class="logo-sub">Bodyweight Program · Mar 2025</div>
+      <div id="sync-badge" style="font-size:11px;color:#888;margin-top:6px">&#8635; loading</div>
     </div>
     <div id="nav-list"></div>
+    <div class="user-bar" id="user-bar" style="display:none">
+      <div class="user-avatar" id="user-avatar">?</div>
+      <div class="user-name" id="user-name">Loading...</div>
+      <button class="signout-btn" onclick="signOut()">Sign out</button>
+    </div>
   </aside>
   <main class="main" id="main-content"></main>
 </div>
@@ -651,11 +727,151 @@ SVG.stair=`<svg viewBox="0 0 52 52" class="ex-svg"><rect x="6" y="38" width="12"
 SVG.stretch=`<svg viewBox="0 0 52 52" class="ex-svg"><ellipse cx="26" cy="8" rx="5" ry="5" fill="${C}"/><line x1="26" y1="13" x2="26" y2="28" stroke="${C}" stroke-width="2.5" stroke-linecap="round"/><line x1="26" y1="22" x2="8" y2="16" stroke="${C}" stroke-width="2.5" stroke-linecap="round"/><line x1="26" y1="22" x2="44" y2="16" stroke="${C}" stroke-width="2.5" stroke-linecap="round"/><line x1="26" y1="28" x2="18" y2="44" stroke="${C}" stroke-width="2" stroke-linecap="round"/><line x1="26" y1="28" x2="34" y2="44" stroke="${C}" stroke-width="2" stroke-linecap="round"/><line x1="14" y1="44" x2="22" y2="44" stroke="${C}" stroke-width="2" stroke-linecap="round"/><line x1="30" y1="44" x2="38" y2="44" stroke="${C}" stroke-width="2" stroke-linecap="round"/></svg>`;
 SVG.squat_jump=`<svg viewBox="0 0 52 52" class="ex-svg"><ellipse cx="26" cy="6" rx="5" ry="5" fill="${C}"/><line x1="26" y1="11" x2="26" y2="24" stroke="${C}" stroke-width="2.5" stroke-linecap="round"/><line x1="26" y1="18" x2="14" y2="20" stroke="${C}" stroke-width="2" stroke-linecap="round"/><line x1="26" y1="18" x2="38" y2="20" stroke="${C}" stroke-width="2" stroke-linecap="round"/><line x1="26" y1="24" x2="18" y2="36" stroke="${C}" stroke-width="2.5" stroke-linecap="round"/><line x1="26" y1="24" x2="34" y2="36" stroke="${C}" stroke-width="2.5" stroke-linecap="round"/><line x1="18" y1="36" x2="14" y2="46" stroke="${C}" stroke-width="2" stroke-linecap="round"/><line x1="34" y1="36" x2="38" y2="46" stroke="${C}" stroke-width="2" stroke-linecap="round"/><line x1="24" y1="3" x2="28" y2="3" stroke="${C}" stroke-width="1.5" stroke-linecap="round"/></svg>`;
 
-// ─── STATE ───────────────────────────────────────────────────────────────────
-function loadState(){try{return JSON.parse(localStorage.getItem('mbp_state')||'{}')}catch(e){return{}}}
-function saveState(s){localStorage.setItem('mbp_state',JSON.stringify(s))}
-let state=loadState();
-let currentIdx=0;
+// ─── SUPABASE + AUTH ─────────────────────────────────────────────────────────
+const SUPA_URL = 'https://aiftgaswubxikydijltj.supabase.co';
+const SUPA_KEY = 'sb_publishable_g1gPd3wOu72q6_JHs06tsQ_qFwLK_mC';
+
+let currentSession = null;
+let currentUser = null;
+
+// Load Supabase JS SDK
+const supaScript = document.createElement('script');
+supaScript.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+supaScript.onload = initSupabase;
+document.head.appendChild(supaScript);
+
+let supabase = null;
+
+async function initSupabase() {
+  supabase = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+
+  // Listen for auth state changes
+  supabase.auth.onAuthStateChange(async (event, session) => {
+    currentSession = session;
+    currentUser = session?.user || null;
+    if (currentUser) {
+      showApp();
+      await loadRemoteState();
+    } else {
+      showLogin();
+    }
+  });
+
+  // Check existing session
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session) {
+    currentSession = session;
+    currentUser = session.user;
+    showApp();
+    await loadRemoteState();
+  } else {
+    showLogin();
+  }
+}
+
+// ─── AUTH ACTIONS ─────────────────────────────────────────────────────────────
+async function signInWithGoogle() {
+  const btn = document.querySelector('.login-btn');
+  btn.textContent = 'Redirecting to Google...';
+  btn.disabled = true;
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: window.location.href
+    }
+  });
+  if (error) {
+    btn.innerHTML = `<span style="color:#f09595">Error: ${error.message}</span>`;
+    btn.disabled = false;
+  }
+}
+
+async function signOut() {
+  await supabase.auth.signOut();
+  state = {};
+  saveLocalState(state);
+  showLogin();
+}
+
+function showLogin() {
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('user-bar').style.display = 'none';
+}
+
+function showApp() {
+  document.getElementById('login-screen').style.display = 'none';
+  // Update user bar
+  const bar = document.getElementById('user-bar');
+  bar.style.display = 'flex';
+  const name = currentUser?.user_metadata?.full_name || currentUser?.email || 'You';
+  const avatar = currentUser?.user_metadata?.avatar_url;
+  document.getElementById('user-name').textContent = name;
+  const avatarEl = document.getElementById('user-avatar');
+  if (avatar) {
+    avatarEl.innerHTML = `<img src="${avatar}" alt="${name}">`;
+  } else {
+    avatarEl.textContent = name.charAt(0).toUpperCase();
+  }
+  // Update mobile topbar with user name
+  const syncBadge = document.getElementById('sync-badge');
+  if (syncBadge) syncBadge.textContent = name.split(' ')[0];
+  goToday();
+  renderNav();
+  renderMain();
+  renderStrip();
+}
+
+// ─── DATA SYNC ────────────────────────────────────────────────────────────────
+function loadLocalState(){try{return JSON.parse(localStorage.getItem('mbp_state')||'{}')}catch(e){return{}}}
+function saveLocalState(s){localStorage.setItem('mbp_state',JSON.stringify(s))}
+let state = loadLocalState();
+let currentIdx = 0;
+let syncOnline = false;
+
+async function loadRemoteState() {
+  if (!currentUser || !supabase) return;
+  showSyncBadge('syncing');
+  try {
+    const { data, error } = await supabase
+      .from('workout_progress')
+      .select('exercise_id, completed')
+      .eq('user_id', currentUser.id);
+    if (!error && data) {
+      data.forEach(r => { state[r.exercise_id] = r.completed; });
+      saveLocalState(state);
+      syncOnline = true;
+      showSyncBadge('online');
+      renderNav(); renderMain(); renderStrip();
+    }
+  } catch(e) {
+    showSyncBadge('offline');
+  }
+}
+
+async function saveExercise(id, completed) {
+  saveLocalState(state);
+  if (!syncOnline || !currentUser || !supabase) return;
+  try {
+    await supabase.from('workout_progress').upsert({
+      user_id: currentUser.id,
+      exercise_id: id,
+      completed
+    }, { onConflict: 'user_id,exercise_id' });
+  } catch(e) { console.warn('Sync failed, saved locally'); }
+}
+
+function showSyncBadge(status) {
+  const el = document.getElementById('sync-badge');
+  if (!el) return;
+  const map = {
+    syncing: ['&#8635; syncing', '#888'],
+    online:  ['&#9679; synced',  '#7a9440'],
+    offline: ['&#9679; offline', '#888'],
+  };
+  const [text, color] = map[status] || map.offline;
+  el.innerHTML = text;
+  el.style.color = color;
+}
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
 function tagClass(t){return{upper:'tag-upper',lower:'tag-lower',abs:'tag-abs',cardio:'tag-cardio',full:'tag-full',rest:'tag-rest'}[t]||'tag-rest'}
@@ -790,7 +1006,7 @@ function renderMain(){
 // ─── ACTIONS ─────────────────────────────────────────────────────────────────
 function toggleEx(id){
   state[id]=!state[id];
-  saveState(state);
+  saveExercise(id, state[id]);
   renderMain();
   renderNav();
   renderStrip();
@@ -843,7 +1059,8 @@ document.addEventListener('touchend',e=>{
 },{passive:true});
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
-goToday();
+// Auth is handled by initSupabase() which fires when the SDK loads above
+// goToday() and loadRemoteState() are called from showApp() after login
 </script>
 </body>
 </html>
