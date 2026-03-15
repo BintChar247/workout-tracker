@@ -198,7 +198,7 @@ body{
   transition:border-color .15s, background .15s;
   -webkit-user-select:none;
   touch-action:manipulation;
-  min-height:68px;
+  min-height:80px;
 }
 .ex-card:active{opacity:.85}
 .ex-card.done{background:var(--done-bg);border-color:var(--done-border)}
@@ -240,6 +240,30 @@ body{
 .all-done-title{font-family:'Bebas Neue',sans-serif;font-size:34px;letter-spacing:3px;color:var(--accent);margin-bottom:6px}
 .all-done-text{font-size:14px;color:var(--text2);line-height:1.65}
 @keyframes pulse-glow{0%,100%{box-shadow:0 0 20px #d4f34420}50%{box-shadow:0 0 40px #d4f34440}}
+
+/* ── SET CHECKBOXES ─────────────────────────────────────── */
+.ex-sets-label{font-size:12px;color:var(--text2);font-family:'DM Mono',monospace;margin-bottom:8px}
+.set-row{display:flex;gap:6px;flex-wrap:wrap}
+.set-box{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  background:var(--border);border-radius:7px;
+  padding:5px 8px;cursor:pointer;
+  transition:all .15s;min-width:36px;
+  border:1px solid transparent;
+  touch-action:manipulation;
+}
+.set-box:hover{background:#3a3a3a}
+.set-box:active{transform:scale(.93)}
+.set-box.set-done{background:var(--done-bg);border-color:var(--done-border)}
+.set-num{font-size:10px;font-family:'DM Mono',monospace;color:var(--text2);line-height:1}
+.set-box.set-done .set-num{color:#7a9440}
+.set-check{
+  width:16px;height:16px;border-radius:50%;
+  background:var(--surface);border:1.5px solid var(--muted);
+  display:flex;align-items:center;justify-content:center;
+  transition:all .15s;
+}
+.set-box.set-done .set-check{background:var(--accent);border-color:var(--accent)}
 
 /* ── LOGIN SCREEN ───────────────────────────────────────── */
 .login-screen{
@@ -834,7 +858,7 @@ async function loadRemoteState() {
   if (!currentUser || !supa) return;
   showSyncBadge('syncing');
   try {
-    const { data, error } = await supabase
+    const { data, error } = await supa
       .from('workout_progress')
       .select('exercise_id, completed')
       .eq('user_id', currentUser.id);
@@ -877,12 +901,31 @@ function showSyncBadge(status) {
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
 function tagClass(t){return{upper:'tag-upper',lower:'tag-lower',abs:'tag-abs',cardio:'tag-cardio',full:'tag-full',rest:'tag-rest'}[t]||'tag-rest'}
-function allExIds(day){return day.groups.flatMap(g=>g.exercises.map(e=>e.id))}
-function completedCount(day){return allExIds(day).filter(id=>state[id]).length}
-function totalCount(day){return allExIds(day).length}
-function pct(day){const t=totalCount(day);return t===0?100:Math.round(completedCount(day)/t*100)}
-function isDayDone(day){const t=totalCount(day);return t>0&&completedCount(day)===t}
-function getCheer(day){const arr=CHEERS[day.type]||['Today is a great day to train.'];return arr[day.date%arr.length]}
+
+// Parse set count from sets string e.g. "3 × 15" → 3, "60 sec ×3" → 3, "30 min" → 1
+function parseSetCount(setsStr){
+  const m = setsStr.match(/(\d+)\s*[×x]/);
+  if(m) return parseInt(m[1]);
+  const m2 = setsStr.match(/[×x]\s*(\d+)/);
+  if(m2) return parseInt(m2[1]);
+  return 1;
+}
+
+// State key for a specific set: "exId_set_N"
+function setKey(exId, setNum){ return `${exId}_set_${setNum}`; }
+
+// All set keys for an exercise
+function setKeys(ex){ return Array.from({length:parseSetCount(ex.sets)},(_,i)=>setKey(ex.id,i)); }
+
+// All trackable keys for a day
+function allSetKeys(day){ return day.groups.flatMap(g=>g.exercises.flatMap(e=>setKeys(e))); }
+
+function completedCount(day){ return allSetKeys(day).filter(k=>state[k]).length; }
+function totalCount(day){ return allSetKeys(day).length; }
+function pct(day){ const t=totalCount(day); return t===0?100:Math.round(completedCount(day)/t*100); }
+function isDayDone(day){ const t=totalCount(day); return t>0&&completedCount(day)===t; }
+function isExDone(ex){ return setKeys(ex).every(k=>state[k]); }
+function getCheer(day){ const arr=CHEERS[day.type]||['Today is a great day to train.']; return arr[day.date%arr.length]; }
 
 // ─── RENDER SIDEBAR NAV ───────────────────────────────────────────────────────
 function renderNav(){
@@ -971,20 +1014,35 @@ function renderMain(){
         <div class="section-head">
           <div class="section-icon" style="background:${group.color}20;border:1px solid ${group.color}60"></div>
           <div class="section-title">${group.name}</div>
-          <div class="section-count">${group.exercises.filter(e=>state[e.id]).length}/${group.exercises.length}</div>
+          <div class="section-count">${group.exercises.flatMap(e=>setKeys(e)).filter(k=>state[k]).length}/${group.exercises.flatMap(e=>setKeys(e)).length}</div>
         </div>
         <div class="ex-grid">`;
       group.exercises.forEach(ex=>{
-        const isDone=!!state[ex.id];
+        const numSets=parseSetCount(ex.sets);
+        const doneSets=setKeys(ex).filter(k=>state[k]).length;
+        const allDoneEx=isExDone(ex);
         const svgStr=SVG[ex.svg]||SVG.pushup;
-        html+=`<div class="ex-card${isDone?' done':''}" onclick="toggleEx('${ex.id}')">
+        // Build set checkboxes
+        let setBoxes='';
+        for(let i=0;i<numSets;i++){
+          const k=setKey(ex.id,i);
+          const isDoneSet=!!state[k];
+          setBoxes+=`<div class="set-box${isDoneSet?' set-done':''}" onclick="event.stopPropagation();toggleSet('${k}')">
+            <div class="set-num">S${i+1}</div>
+            <div class="set-check">
+              <svg viewBox="0 0 10 10" width="10" height="10"><polyline points="1,5 3.5,8 9,2" stroke="${isDoneSet?'#0e0e0e':'transparent'}" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+          </div>`;
+        }
+        html+=`<div class="ex-card${allDoneEx?' done':''}">
           <div class="ex-illus">${svgStr}</div>
           <div class="ex-body">
             <div class="ex-name">${ex.name}</div>
-            <div class="ex-sets">${ex.sets}</div>
+            <div class="ex-sets-label">${ex.sets}</div>
+            <div class="set-row">${setBoxes}</div>
           </div>
           <div class="ex-check">
-            <div class="check-circle">
+            <div class="check-circle" onclick="toggleAllSets('${ex.id}')">
               <svg class="check-mark" viewBox="0 0 12 12"><polyline points="1.5,6 4.5,9 10.5,3" stroke="#0e0e0e" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </div>
           </div>
@@ -1006,13 +1064,27 @@ function renderMain(){
 }
 
 // ─── ACTIONS ─────────────────────────────────────────────────────────────────
-function toggleEx(id){
-  state[id]=!state[id];
-  saveExercise(id, state[id]);
+function toggleSet(key){
+  state[key]=!state[key];
+  saveExercise(key, state[key]);
   renderMain();
   renderNav();
   renderStrip();
 }
+
+function toggleAllSets(exId){
+  const ex = PROGRAM.flatMap(d=>d.groups.flatMap(g=>g.exercises)).find(e=>e.id===exId);
+  if(!ex) return;
+  const keys = setKeys(ex);
+  const allDone = keys.every(k=>state[k]);
+  keys.forEach(k=>{ state[k]=!allDone; });
+  keys.forEach(k=>saveExercise(k, state[k]));
+  renderMain();
+  renderNav();
+  renderStrip();
+}
+
+function toggleEx(id){ toggleAllSets(id); }
 
 function goDay(idx){
   currentIdx=idx;
